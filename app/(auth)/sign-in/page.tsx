@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { signIn } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
@@ -16,9 +16,17 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-export default function SignInPage() {
+function SignInForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
+
+  // Open redirect atkate: shudhu "/" diye shuru hoy emon internal path allow
+  const rawRedirect = searchParams.get("redirect") || "/dashboard";
+  const redirectTo =
+    rawRedirect.startsWith("/") && !rawRedirect.startsWith("//")
+      ? rawRedirect
+      : "/dashboard";
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -34,7 +42,7 @@ export default function SignInPage() {
         return;
       }
       toast.success("Welcome back!");
-      router.push("/dashboard");
+      router.push(redirectTo);
       router.refresh();
     } catch {
       toast.error("Something went wrong. Please try again.");
@@ -44,14 +52,14 @@ export default function SignInPage() {
   }
 
   async function handleGoogle() {
-    await signIn.social({ provider: "google", callbackURL: "/dashboard" });
+    await signIn.social({ provider: "google", callbackURL: redirectTo });
   }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-orange-50 px-4 py-10">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl text-red-600">Welcome back 🍕</CardTitle>
+          <CardTitle className="text-2xl text-primary">Welcome back 🍕</CardTitle>
           <CardDescription>Sign in to your PizzaHub account</CardDescription>
         </CardHeader>
         <CardContent>
@@ -64,7 +72,7 @@ export default function SignInPage() {
               <Label htmlFor="password">Password</Label>
               <Input id="password" name="password" type="password" required />
             </div>
-            <Button type="submit" className="w-full bg-red-600 hover:bg-red-700" disabled={loading}>
+            <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Signing in..." : "Sign In"}
             </Button>
           </form>
@@ -75,18 +83,38 @@ export default function SignInPage() {
             <div className="h-px flex-1 bg-border" />
           </div>
 
-          <Button variant="outline" className="w-full" onClick={handleGoogle} disabled={loading}>
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={handleGoogle}
+            disabled={loading}
+          >
             Continue with Google
           </Button>
 
           <p className="mt-4 text-center text-sm">
             New to PizzaHub?{" "}
-            <Link href="/sign-up" className="font-medium text-red-600 hover:underline">
+            <Link
+              href={
+                redirectTo !== "/dashboard"
+                  ? `/sign-up?redirect=${encodeURIComponent(redirectTo)}`
+                  : "/sign-up"
+              }
+              className="font-medium text-primary hover:underline"
+            >
               Sign Up
             </Link>
           </p>
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={null}>
+      <SignInForm />
+    </Suspense>
   );
 }
