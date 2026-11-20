@@ -9,7 +9,7 @@ import { apiFetch } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-
+import OrderDialog from "@/components/menu/OrderDialog";
 type Detail = {
   _id: string;
   itemName: string;
@@ -147,9 +147,11 @@ export default function ItemDetails({ id }: { id: string }) {
         </div>
 
         <div className="space-y-2 pt-2">
-          <Button size="lg" className="w-full sm:w-auto" disabled={orderState.disabled}>
-            Order Now
-          </Button>
+          <OrderDialog
+  itemId={item._id}
+  itemName={item.itemName}
+  disabled={orderState.disabled}
+/>
           {orderState.note && <p className="text-sm text-muted-foreground">{orderState.note}</p>}
         </div>
       </div>
