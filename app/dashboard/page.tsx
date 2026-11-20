@@ -3,6 +3,8 @@
 import { useSession, signOut } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { apiFetch } from "@/lib/api";
+import { toast } from "sonner";
 
 export default function DashboardPage() {
   const { data: session, isPending } = useSession();
@@ -16,6 +18,35 @@ export default function DashboardPage() {
       <h1 className="text-2xl font-bold">Hello, {session.user.name}</h1>
       <p>Email: {session.user.email}</p>
       <p>Role: {session.user.role}</p>
+
+<Button
+  variant="outline"
+  onClick={async () => {
+    try {
+      const data = await apiFetch("/api/users/me");
+      toast.success(`Server says role: ${data.user.role}`);
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  }}
+>
+  Test Server API
+</Button>
+
+<Button
+  variant="outline"
+  onClick={async () => {
+    try {
+      const data = await apiFetch("/api/users/admin-check");
+      toast.success(data.message);
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  }}
+>
+  Test Admin Route
+</Button>
+
       <Button
         onClick={async () => {
           await signOut();
