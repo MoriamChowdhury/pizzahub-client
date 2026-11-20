@@ -8,4 +8,4 @@ const globalForMongo = globalThis as unknown as { _mongoClient?: MongoClient };
 export const client = globalForMongo._mongoClient ?? new MongoClient(uri);
 if (process.env.NODE_ENV !== "production") globalForMongo._mongoClient = client;
 
-export const db = client.db();
+export const db = client.db("pizzahub");
