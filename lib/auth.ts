@@ -3,7 +3,7 @@ import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import { jwt } from "better-auth/plugins";
 import { nextCookies } from "better-auth/next-js";
 import { APIError } from "better-auth/api";
-import { client, db } from "./db";
+import { db } from "./db";
 
 const PROTECTED_FIELDS = [
   "role",
@@ -13,7 +13,8 @@ const PROTECTED_FIELDS = [
 ];
 
 export const auth = betterAuth({
-  database: mongodbAdapter(db, { client }),
+  // client pass kora hoy ni: transaction off, serverless e "Topology is closed" asbe na
+  database: mongodbAdapter(db),
 
   emailAndPassword: {
     enabled: true,
