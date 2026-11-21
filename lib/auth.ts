@@ -13,8 +13,16 @@ const PROTECTED_FIELDS = [
 ];
 
 export const auth = betterAuth({
-  // client pass kora hoy ni: transaction off, serverless e "Topology is closed" asbe na
+  // client pass kora hoy ni: transaction off
   database: mongodbAdapter(db),
+
+  // Session cookie te cache thake, proti reload e DB call lage na
+  session: {
+    cookieCache: {
+      enabled: true,
+      maxAge: 5 * 60,
+    },
+  },
 
   emailAndPassword: {
     enabled: true,
@@ -51,7 +59,6 @@ export const auth = betterAuth({
       },
       update: {
         before: async (data) => {
-          // User nijer role/subscription change korte parbe na
           for (const key of PROTECTED_FIELDS) {
             if (key in data) {
               throw new APIError("FORBIDDEN", {

@@ -11,9 +11,13 @@ export const client =
   new MongoClient(uri, {
     maxIdleTimeMS: 5000,
     serverSelectionTimeoutMS: 10000,
+    maxPoolSize: 5,
+    minPoolSize: 0,
+    retryReads: true,
+    retryWrites: true,
   });
 
-// Production e-o cache koro (age shudhu dev e hoto)
+// Production e-o cache koro
 globalForMongo._mongoClient = client;
 
 // Vercel function suspend hole idle connection thik moto close kore
